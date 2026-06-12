@@ -776,7 +776,7 @@ filter_rad <- function(
   if (continue.with.ld == "y") {
     gds <- filter_ld(
       data = gds,
-      iinteractive.filter = interactive.filter,
+      interactive.filter = interactive.filter,
       filter.short.ld = filter.short.ld.bk,
       filter.long.ld = filter.long.ld.bk,
       parallel.core = parallel.core,
