@@ -44,14 +44,14 @@ into a new pop called \code{"NEW"}:
 \code{pop.labels = c("NEW", "NEW", "ALB")}.
 To rename \code{"QUE"} to \code{"TAS"}:
 \code{pop.labels = c("TAS", "ONT", "ALB")}.
-Default: \code{pop.labels = NULL}. If you find this too complicated,
-there is also the \code{strata} argument that can do the same thing,
-see below.
+Default: \code{pop.labels = NULL}.
 White spaces in population names are replaced by underscore.}
 
 \item{pop.select}{(optional, string) Selected list of populations for
 the analysis. e.g. \code{pop.select = c("QUE", "ONT")} to select \code{QUE}
-and \code{ONT} population samples (out of 20 pops).
+and \code{ONT} population samples (out of 20 pops). If \code{pop.labels}
+argument was used to rename the strata column, use the new names with
+\code{pop.select}.
 Default: \code{pop.select = NULL}}
 
 \item{blacklist.id}{(optional, path or object) A blacklist file in the working directory
@@ -74,7 +74,8 @@ Default: \code{path.folder = getwd()}.}
 !is.null(pop.select)}, the modified strata is written by default in the
 working directory with date and time appended to \code{strata_radiator_filtered},
 to make the file unique. If you plan on writing more than 1 strata file per minute,
-use this argument to supply the unique filename.
+use this argument to supply the unique filename. When filename is not NULL, it
+will also trigger saving the strata to a file.
 Default: \code{filename = NULL}.}
 
 \item{verbose}{(optional, logical) When \code{verbose = TRUE}

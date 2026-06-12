@@ -1,3 +1,42 @@
+# radiator 1.4.0 2025-09-04
+* bug fix when using the new DArT data and converting to genind
+
+
+# radiator 1.3.9 2025-09-02
+* Improved DArT file import
+* New flavor of strata file import for DArT data
+
+
+# radiator 1.3.8 2025-07-01
+* Improved the use of arrow
+* Better reporting
+
+
+# radiator 1.3.7 2025-06-17
+
+* Improved DArT file import and filtering
+* Several functions were not handling generating folder names and numbers inside 
+nested function. Presently working on an overhaul. 
+VCF and DArT files are impacted by this one. 
+
+
+# radiator 1.3.6 2025-04-15
+
+* Speed improvements for some functions
+* gradually replacing data.table and fst package: always difficult to install to work in parallel
+* now using arrow package to store tibble...
+
+# radiator 1.3.5 2024-11-06
+
+* Fix the one column matrices in dplyr::filter warning.
+* Fix the error when dplyr::select couldn't find the column STRATA.
+
+# radiator 1.3.4 2024-06-05
+
+* Open the `parallel.core` argument for some internal functions to help windows users with parallel processing problems in R. #188
+* Work around for `.DynamicClusterCall` pushed greavess #189
+
+
 # radiator 1.3.3 2024-05-15
 
 * Fix issue #188 related to coverage in DArT 1row and 2rows format
