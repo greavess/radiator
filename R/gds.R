@@ -3184,15 +3184,15 @@ generate_stats <- function(
 
   if (!is.null(m.stats)) {
     dplyr::mutate(.data = m.stats,
-                  dplyr::across(.cols = where(is.numeric), .fns = round, digits = digits),
-                  dplyr::across(.cols = where(is.numeric), .fns = format, scientific = FALSE),
+                  dplyr::across(.cols = where(is.numeric), .fns = ~ round(.x, digits = digits)),
+                  dplyr::across(.cols = where(is.numeric), .fns = ~ format(.x, scientific = FALSE)),
     ) %>%
       readr::write_tsv(x = ., file = file.path(path.folder, m.stats.f.sum))
   }
   if (!is.null(i.stats)) {
     dplyr::mutate(.data = i.stats,
-                  dplyr::across(.cols = where(is.numeric), .fns = round, digits = digits),
-                  dplyr::across(.cols = where(is.numeric), .fns = format, scientific = FALSE),
+                  dplyr::across(.cols = where(is.numeric), .fns = ~ round(.x, digits = digits)),
+                  dplyr::across(.cols = where(is.numeric), .fns = ~ format(.x, scientific = FALSE)),
     ) %>%
       readr::write_tsv(x = ., file = file.path(path.folder, i.stats.f.sum))
   }
