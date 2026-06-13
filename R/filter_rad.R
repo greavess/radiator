@@ -648,6 +648,8 @@ filter_rad <- function(
       internal = FALSE)
   }
 
+
+
   # Filter_monomorphic----------------------------------------------------------
   gds <- filter_monomorphic(
     data = gds,
@@ -845,6 +847,16 @@ filter_rad <- function(
     samples = strata$INDIVIDUALS,
     variant.id = markers.meta$VARIANT_ID
   )
+
+  # Close the gds and reopen readonly to deal with Windows parallel problems
+  if (Sys.info()[["sysname"]] == "Windows") {
+    gds_file <-  gds$filename
+    filter <- SeqArray::seqGetFilter(gdsfile = gds) # filters did not persist
+    SeqArray::seqClose(gds) # close the connection
+    gds <- SeqArray::seqOpen(gds_file, readonly = TRUE, allow.duplicate = TRUE)
+    SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
+    print("Windows - Readonly GDS")
+  }
 
   # FINAL PREP
   # filtered data folder
