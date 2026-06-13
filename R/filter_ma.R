@@ -914,9 +914,7 @@ minor_allele_stats <- function(
         # check if AD is available...
         ad <- check_coverage(
           gds = data,
-          stacks.haplo.check = TRUE,
           genotypes.metadata.check = TRUE,
-          dart.check = TRUE
         )
         if ("AD" %in% ad) {
           # get the read depth for each alleles

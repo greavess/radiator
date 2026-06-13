@@ -186,7 +186,7 @@ filter_coverage <- function(
     verbose = verbose)
 
   # Verify that coverage information is present in the data...
-  depth.info <- check_coverage(gds = data, genotypes.metadata.check = TRUE, stacks.haplo.check = TRUE, dart.check = TRUE)
+  depth.info <- check_coverage(gds = data, genotypes.metadata.check = TRUE)
   if (is.null(depth.info)) {
     message("\n\nCoverate information is not available for this dataset, returning GDS...")
     return(data)

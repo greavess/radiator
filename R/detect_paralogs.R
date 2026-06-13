@@ -182,9 +182,7 @@ detect_paralogs <- function(
   coverage <- allele.coverage <- TRUE # default
   got.coverage <- check_coverage(
     gds = data,
-    stacks.haplo.check = TRUE,
     genotypes.metadata.check = TRUE,
-    dart.check = TRUE
   )
   if (!"DP" %in% got.coverage && !"READ_DEPTH" %in% got.coverage) coverage <- FALSE
   if (!"AD" %in% got.coverage) allele.coverage <- FALSE

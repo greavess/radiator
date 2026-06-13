@@ -513,7 +513,7 @@ read_vcf <- function(
     )
   }#End vcf_read_temp
 
-
+  os <- Sys.info()[["sysname"]]
   safe_vcf_read <- purrr::safely(.f = vcf_read_temp)
 
   data.safe <- safe_vcf_read(data, filename, parallel.temp, check.header, markers.info, overwrite.metadata)
@@ -522,7 +522,6 @@ read_vcf <- function(
     gds <- SeqArray::seqOpen(gds.fn = data.safe$result, readonly = FALSE)
   } else {
     cli::cli_progress_step("Reading VCF in parallel resulted in an error")
-    os <- Sys.info()[['sysname']]
     if (os == "Windows") {
       cli::cli_progress_step("Common problem with Windows machines")
     } else {
@@ -560,7 +559,18 @@ read_vcf <- function(
   biallelic <- detect_biallelic_markers(data = gds, verbose = verbose)
 
   # stacks haplotype VCF...
-  if (!biallelic && stacks.2) dp <- FALSE
+  # stacks haplotypes VCF header is
+  # badly generated. It will say you have Read and allele Depth info, but you don't.
+  if (!biallelic && stacks.2) {
+    dp <- FALSE
+    biallelic <- gdsfmt::read.gdsn(gdsfmt::index.gdsn(
+      node = gds, path = "radiator/biallelic", silent = TRUE
+    ))
+    if (!biallelic) {
+      # check again to be 100% sure...
+      biallelic <- radiator::detect_biallelic_markers(data = gds)
+    }
+  }
 
   # VCF clean sample id---------------------------------------------------------
   individuals.vcf <- tibble::tibble(
@@ -1142,14 +1152,19 @@ read_vcf <- function(
 
   # Final Sync GDS -----------------------------------------------------------
   if (verbose) message("\nPreparing output files...")
-  markers.meta <- extract_markers_metadata(gds, whitelist = TRUE)
-
-  strata <- extract_individuals_metadata(
-    gds = gds,
-    ind.field.select = c("INDIVIDUALS", "STRATA"),
-    whitelist = TRUE)
 
   sync_gds(gds = gds)
+
+  # Close the gds and reopen readonly to deal with Windows parallel problems
+  print(SeqArray::seqSummary(gds, "$filter"))
+  if (os == "Windows") {
+    filter <- SeqArray::seqGetFilter(gdsfile = gds) # filters did not persist
+    SeqArray::seqClose(gds) # close the connection
+    gds <- SeqArray::seqOpen(filename, readonly = TRUE, allow.duplicate = TRUE)
+    SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
+  }
+  print("Readonly")
+  print(SeqArray::seqSummary(gds, "$filter"))
 
   # generate a folder to put the stats...
   path.folder <- generate_folder(
@@ -1160,6 +1175,7 @@ read_vcf <- function(
     verbose = verbose)
 
   # Whitelist
+  markers.meta <- extract_markers_metadata(gds, whitelist = TRUE)
   write_radiator_tsv(
     data = markers.meta,
     path.folder = path.folder,
@@ -1202,6 +1218,12 @@ read_vcf <- function(
   }
 
   # Generate new strata
+  strata <- extract_individuals_metadata(
+    gds = gds,
+    ind.field.select = c("INDIVIDUALS", "STRATA"),
+    whitelist = TRUE
+  )
+
   write_radiator_tsv(
     data = strata,
     path.folder = path.folder,
@@ -1308,6 +1330,13 @@ read_vcf <- function(
   i.m.stats <- markers.meta <- NULL
 
   message("radiator Genomic Data Structure (GDS) file: ", basename(filename))
+
+  if (os == "Windows") {
+    # Close the gds readonly and reopen editable to maintain behavior
+    SeqArray::seqClose(gds) # close the connection
+    gds <- SeqArray::seqOpen(filename, readonly = FALSE)
+  }
+
   return(gds)
 } # End read_vcf
 
