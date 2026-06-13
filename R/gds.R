@@ -2375,9 +2375,6 @@ generate_stats <- function(
 
   # need this info even if markers = FALSE
   m.info <- extract_markers_metadata(gds = gds, whitelist = TRUE)
-  print(paste("m.info dim original", dim(extract_markers_metadata(gds = gds))))
-  print(paste("whitelist", dim(extract_markers_metadata(gds = gds, whitelist = TRUE))))
-  print(paste("blacklist", dim(extract_markers_metadata(gds = gds, blacklist = TRUE))))
 
   n.markers.tot <- nrow(m.info)
   if (!rlang::has_name(m.info, "COL")) snp.position.read <- FALSE
@@ -2460,12 +2457,7 @@ generate_stats <- function(
           per.variant = TRUE,
           parallel = parallel.core
         )
-        print(paste("missing", length(m.missing)))
-        print(paste("whitelist", dim(extract_markers_metadata(gds = gds, whitelist = TRUE))))
         gds_summary <- SeqArray::seqSummary(gds, "genotype", check = "none", verbose = FALSE)
-        print(paste("gds dim", gds_summary$dim, gds_summary$seldim))
-        print(paste("gds sel dim", gds_summary$seldim))
-        print(paste("m.info dim", dim(m.info)))
         m.info$MISSING_PROP <- m.missing
       }
       m.stats %<>%

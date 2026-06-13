@@ -1156,15 +1156,13 @@ read_vcf <- function(
   sync_gds(gds = gds)
 
   # Close the gds and reopen readonly to deal with Windows parallel problems
-  print(SeqArray::seqSummary(gds, "$filter"))
   if (os == "Windows") {
     filter <- SeqArray::seqGetFilter(gdsfile = gds) # filters did not persist
     SeqArray::seqClose(gds) # close the connection
     gds <- SeqArray::seqOpen(filename, readonly = TRUE, allow.duplicate = TRUE)
     SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
+    print("Windows - Readonly GDS")
   }
-  print("Readonly")
-  print(SeqArray::seqSummary(gds, "$filter"))
 
   # generate a folder to put the stats...
   path.folder <- generate_folder(
