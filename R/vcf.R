@@ -1161,7 +1161,7 @@ read_vcf <- function(
     SeqArray::seqClose(gds) # close the connection
     gds <- SeqArray::seqOpen(filename, readonly = TRUE, allow.duplicate = TRUE)
     SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
-    print("Windows - Readonly GDS")
+    if(verbose) print("Windows - Readonly GDS")
   }
 
   # generate a folder to put the stats...
@@ -1329,10 +1329,14 @@ read_vcf <- function(
 
   message("radiator Genomic Data Structure (GDS) file: ", basename(filename))
 
+
+  # Close the gds readonly and reopen editable to maintain previous behavior
   if (os == "Windows") {
-    # Close the gds readonly and reopen editable to maintain behavior
+    filter <- SeqArray::seqGetFilter(gdsfile = gds) # filters did not persist
     SeqArray::seqClose(gds) # close the connection
     gds <- SeqArray::seqOpen(filename, readonly = FALSE)
+    SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
+    if (verbose) print("Windows - GDS reopened for editing")
   }
 
   return(gds)

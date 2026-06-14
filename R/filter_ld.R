@@ -745,6 +745,16 @@ filter_ld <- function(
     if (long.ld.missing) {
       if (verbose) message("\nLong distance LD pruning with missing data")
 
+      # Close the gds and reopen readonly to deal with Windows parallel problems
+      if (Sys.info()[["sysname"]] == "Windows") {
+        gds_file <- data$filename
+        filter <- SeqArray::seqGetFilter(gdsfile = data) # filters did not persist
+        SeqArray::seqClose(data) # close the connection
+        data <- SeqArray::seqOpen(gds_file, readonly = TRUE, allow.duplicate = TRUE)
+        SeqArray::seqSetFilter(data, filter$variant.sel, sample.sel = filter$sample.sel)
+        if(verbose) print("Windows - Readonly GDS")
+      }
+
       wl.bl.ld <- ld_missing(
         wl = wl,
         data = data,
@@ -760,6 +770,16 @@ filter_ld <- function(
         verbose = verbose,
         path.folder = path.folder
       )
+      # Reset the gds connection
+      if (Sys.info()[["sysname"]] == "Windows") {
+        gds_file <- data$filename
+        filter <- SeqArray::seqGetFilter(gdsfile = data) # filters did not persist
+        SeqArray::seqClose(data) # close the connection
+        data <- SeqArray::seqOpen(gds_file, readonly = FALSE)
+        SeqArray::seqSetFilter(data, filter$variant.sel, sample.sel = filter$sample.sel)
+        if(verbose) print("Windows - GDS reopened for editing")
+      }
+
       # if (verbose) message("Several whitelists and blacklists were generated")
 
       if (interactive.filter) {
@@ -1300,8 +1320,15 @@ ld_missing <- function(
     if (chrom.snp.n > 1) {
       # Adjusting the parallel.core argument ---------------------------------
       # SNPRelate doesnt like when lower than number of markers used...
-      parallel.core.temp <- max(1L, length(x$MARKERS))
+      # parallel.core.temp <- max(1L, length(x$MARKERS))
       # parallel.core.temp <- max(1L, n.markers)
+      if (Sys.info()[["sysname"]] == "Windows" && chrom.snp.n < 100) {
+        # The threading is super inefficient on Windows with chomosomes with 
+        #   small numbers of markers and slows things down
+        parallel.core.temp <- 1 
+      } else {
+        parallel.core.temp <- max(1L, length(x$MARKERS))
+      }
 
       if (parallel.core <= parallel.core.temp) {
         parallel.core.temp <- parallel.core
@@ -1357,6 +1384,7 @@ ld_missing <- function(
             )
           ) %>%
             dplyr::mutate(GENOTYPED_PROP = 1 - MISSING_PROP, MISSING_PROP = NULL)
+          if (verbose) print("Missingness calculated.")
 
           # Pruning the SNPs -------------------------------------------------------
           # These LD values are not used anyway during the pruning
@@ -1599,5 +1627,3 @@ ld_missing <- function(
     return(NULL)
   }
 }#End ld_missing
-
-

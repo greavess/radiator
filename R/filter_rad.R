@@ -855,7 +855,7 @@ filter_rad <- function(
     SeqArray::seqClose(gds) # close the connection
     gds <- SeqArray::seqOpen(gds_file, readonly = TRUE, allow.duplicate = TRUE)
     SeqArray::seqSetFilter(gds, filter$variant.sel, sample.sel = filter$sample.sel)
-    print("Windows - Readonly GDS")
+    if(verbose) print("Windows - Readonly GDS")
   }
 
   # FINAL PREP

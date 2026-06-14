@@ -427,7 +427,15 @@ detect_duplicate_genomes <- function(
         verbose = verbose)
 
       # geno.stats
-
+      # Close the gds and reopen readonly to deal with Windows parallel problems
+      if (Sys.info()[["sysname"]] == "Windows") {
+        gds_file <- data$filename
+        filter <- SeqArray::seqGetFilter(gdsfile = data) # filters did not persist
+        SeqArray::seqClose(data) # close the connection
+        data <- SeqArray::seqOpen(gds_file, readonly = TRUE, allow.duplicate = TRUE)
+        SeqArray::seqSetFilter(data, filter$variant.sel, sample.sel = filter$sample.sel)
+        if(verbose) print("Windows - Readonly GDS")
+      }
       geno.stats <- generate_stats(
         gds = data, # change to data...
         markers = FALSE,
@@ -850,6 +858,16 @@ detect_duplicate_genomes <- function(
 
 
     } # end genome method
+
+    # Reopen the gds connection
+    if (Sys.info()[["sysname"]] == "Windows") {
+      gds_file <- data$filename
+      filter <- SeqArray::seqGetFilter(gdsfile = data) # filters did not persist
+      SeqArray::seqClose(data) # close the connection
+      data <- SeqArray::seqOpen(gds_file, readonly = FALSE)
+      SeqArray::seqSetFilter(data, filter$variant.sel, sample.sel = filter$sample.sel)
+      if(verbose) print("Windows - GDS reopened for editing")
+    }
 
     # Filtering --------
     # Removing duplicates ------------------------------------------------------
