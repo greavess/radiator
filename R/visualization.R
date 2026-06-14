@@ -486,7 +486,7 @@ plot_density_distribution_coverage <- function(data, aes.colour, adjust.bin) {
 
 
   ggplot2::ggplot(data, ggplot2::aes(x = VALUE, na.rm = TRUE)) +
-    ggplot2::geom_line(aes.colour, stat = "density", size = 0.5, adjust = adjust.bin) +
+    ggplot2::geom_line(aes.colour, stat = "density", linewidth = 0.5, adjust = adjust.bin) +
     ggplot2::labs(x = "Depth of coverage(read number)") +
     ggplot2::labs(y = "Loci (scaled density)") +
     ggplot2::expand_limits(x = 0) +
@@ -836,7 +836,7 @@ plot_snp_position_read <- function(data, aes.colour, y.title) {
 
 
   ggplot2::ggplot(data, ggplot2::aes(x = COL, na.rm = TRUE)) +
-    ggplot2::geom_line((aes.colour), stat = "density", size = 1, adjust = 0.7) +
+    ggplot2::geom_line((aes.colour), stat = "density", linewidth = 1, adjust = 0.7) +
     ggplot2::scale_x_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90)) +
     ggplot2::labs(x = "Nucleotide position on the read") +
     ggplot2::labs(y = y.title) +
